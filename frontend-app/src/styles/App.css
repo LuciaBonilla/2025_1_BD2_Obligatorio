@@ -1,0 +1,84 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+/* Contenedor */
+.container {
+  max-width: 700px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Títulos principales */
+h1 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Subtítulos o secciones */
+h2 {
+  font-size: 22px;
+  color: #444;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+/* Inputs, selects, textareas */
+input,
+select,
+textarea {
+  font-size: 16px;
+  padding: 10px;
+  margin: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 250px;
+}
+
+/* Botones */
+button {
+  font-size: 16px;
+  padding: 10px 20px;
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+/* Lista general */
+ul.lista {
+  list-style: none;
+  padding: 0;
+  font-size: 18px;
+  text-align: left;
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+/* Ítems de lista con separación */
+ul.lista li {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Radios alineados */
+label input[type="radio"] {
+  margin-right: 10px;
+}

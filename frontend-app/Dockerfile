@@ -2,7 +2,7 @@
 FROM node:24-slim
 
 # Set working directory
-WORKDIR /app
+WORKDIR /frontend-app
 
 # Copy package.json and install dependencies
 COPY package*.json ./

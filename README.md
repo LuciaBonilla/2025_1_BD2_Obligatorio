@@ -21,7 +21,7 @@ Cuando se inicialice por primera vez el contenedor de bases de datos, se ejecuta
 
 ## ¿Cómo Cargar Todos los Datos en la Base de Datos?
 
-Para cargar los (datos)[./data/datos_bd_uruguay], se debe cambiar en Visual Studio Code el ´End of Line Sequence´ de cada archivo .csv a ´LF´ (esto quiere decir que la líneas del CSV terminan en ´\n´). Luego se debe ejecutar el [archivo para la carga](./data/data/datos_bd_uruguay/load-data-G5.sql), mientras el contenedor de bases de datos esté encendido.
+Para cargar los [datos](./data/datos_bd_uruguay), se debe cambiar en Visual Studio Code el ``End of Line Sequence`` de cada archivo .csv a ``LF`` (esto quiere decir que la líneas del CSV terminan en ``\n``). Luego se debe ejecutar el [archivo para la carga](./data/datos_bd_uruguay/load-data-G5.sql), mientras el contenedor de bases de datos esté encendido.
 
 ## ¿Cómo Probar la Aplicación?
 

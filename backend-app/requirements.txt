@@ -1,4 +1,7 @@
 # Requerimientos/dependencias.
-Flask
-mysql-connector-python
-flask-cors
+flask
+pymysql
+cryptography
+PyJWT
+bcrypt
+python-dotenv

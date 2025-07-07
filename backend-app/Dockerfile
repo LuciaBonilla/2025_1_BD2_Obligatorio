@@ -1,8 +1,7 @@
-# Usa una imagen oficial de ... como base.
-FROM alpine:3.13-slim
+FROM python:3.11-slim
 
 # Establece el directorio de trabajo dentro del contenedor.
-WORKDIR /src
+WORKDIR /backend-app
 
 # Copia el archivo requirements.txt y lo instala.
 COPY requirements.txt .
@@ -14,4 +13,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # Comando para ejecutar la aplicación con hot reload y debug mode .
-CMD ["flask", "--app", "app.py", "--debug", "run","--host=0.0.0.0"]
+CMD ["flask", "--app", "./src/app.py", "--debug", "run","--host=0.0.0.0"]

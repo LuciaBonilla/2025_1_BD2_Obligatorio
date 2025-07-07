@@ -1,4 +1,4 @@
-Cedula_Identidad,Contrasenia_Hash
+Cedula_Identidad,Hashed_Password
 1000000,$2b$12$rAL3s9ghywV/fOFLv8CGDemGzUFqDiATiwdYQygXl9gNIbMF63gdi
 1100000,$2b$12$rAL3s9ghywV/fOFLv8CGDemGzUFqDiATiwdYQygXl9gNIbMF63gdi
 1200000,$2b$12$rAL3s9ghywV/fOFLv8CGDemGzUFqDiATiwdYQygXl9gNIbMF63gdi

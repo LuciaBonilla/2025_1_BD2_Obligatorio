@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/App.css";
 
 
-function SupervisorPanel() {
+function LegajoPage() {
   const personas = [
     { id: 1, nombre: "Ana López", cedula: "12345678", credencial: "ABC123" },
     { id: 2, nombre: "Luis Gómez", cedula: "23456789", credencial: "DEF456" },
@@ -59,4 +59,4 @@ function SupervisorPanel() {
   );
 }
 
-export default SupervisorPanel;
+export default LegajoPage;

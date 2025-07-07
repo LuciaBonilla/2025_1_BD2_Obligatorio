@@ -11,7 +11,7 @@ const resultadosSimulados = [
   { id: 5, nombre: "Partido Naranja", votos: 100 },
 ];
 
-function Resultados() {
+function ResultadosPage() {
   const navigate = useNavigate();
 
   // Ordenar descendente por votos
@@ -40,4 +40,4 @@ function Resultados() {
   );
 }
 
-export default Resultados;
+export default ResultadosPage;

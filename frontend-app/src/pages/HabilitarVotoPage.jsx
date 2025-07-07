@@ -3,23 +3,19 @@ import { useNavigate } from "react-router-dom";
 import "../styles/App.css";
 
 
-function Login() {
+function HabilitarVotoPage() {
   const navigate = useNavigate();
 
   return (
     <div className="container">
-      <h1>Login de supervisor</h1>
+      <h1>Habilitador para votar</h1>
 
       <div>
-        <input type="text" placeholder="Cédula" />
+        <input type="text" placeholder="Credencial" />
       </div>
 
       <div>
-        <input type="password" placeholder="Password" />
-      </div>
-
-      <div>
-        <button onClick={() => alert("Login exitoso")}>Ingresar</button>
+        <button onClick={() => alert("Credencial verificada")}>Aceptar</button>
       </div>
 
       <div>
@@ -29,4 +25,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default HabilitarVotoPage;

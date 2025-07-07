@@ -9,7 +9,7 @@ const personas = [
   { id: 3, nombre: "Sofía Pérez", cedula: "34567890", credencial: "GHI789" }
 ];
 
-function RegistrarConstancia() {
+function RegistrarConstanciaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -72,4 +72,4 @@ function RegistrarConstancia() {
   );
 }
 
-export default RegistrarConstancia;
+export default RegistrarConstanciaPage;

@@ -9,7 +9,7 @@ const partidos = [
   { id: 3, nombre: "Partido Azul", hoja: "303" }
 ];
 
-function EmitirVoto() {
+function EmitirVotoPage() {
   const [filtroHoja, setFiltroHoja] = useState("");
   const [filtroNombre, setFiltroNombre] = useState("");
   const [seleccionado, setSeleccionado] = useState(null);
@@ -98,4 +98,4 @@ function EmitirVoto() {
   );
 }
 
-export default EmitirVoto;
+export default EmitirVotoPage;

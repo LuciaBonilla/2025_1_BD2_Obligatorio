@@ -12,8 +12,8 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		ROLLBACK;
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al retornar elección';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al retornar elección";
 	END;
     
     SELECT
@@ -33,8 +33,8 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		ROLLBACK;
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al retornar código de circuito';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al retornar código de circuito";
 	END;
     
     SELECT
@@ -56,8 +56,8 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		ROLLBACK;
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al retornar circuito';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al retornar circuito";
 	END;
     
     SELECT
@@ -92,8 +92,8 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		ROLLBACK;
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al abrir circuito';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al abrir circuito";
 	END;
     
     START TRANSACTION;
@@ -113,14 +113,14 @@ BEGIN
     FOR UPDATE;
 
     -- Abrir circuito.
-    IF v_fecha_votacion = CURDATE() AND v_hora_fin_votacion > CURTIME() AND v_hora_inicio_votacion <= CURTIME() THEN
+    IF v_fecha_votacion = CURDATE() AND v_hora_fin_votacion > CONVERT_TZ(NOW(), '+00:00', '-03:00') AND v_hora_inicio_votacion <= CONVERT_TZ(NOW(), '+00:00', '-03:00') THEN
 		UPDATE CIRCUITO c
 		SET c.Esta_Cerrado = FALSE
 		WHERE c.Codigo = in_codigo_circuito;
 	ELSE
 		ROLLBACK;
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'No se puede abrir el circuito fuera de la hora oficial.';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "No se puede abrir el circuito fuera de la hora oficial.";
 	END IF;
     
     COMMIT;
@@ -140,8 +140,8 @@ BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		ROLLBACK;
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al cerrar circuito';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al cerrar circuito";
 	END;
 
     START TRANSACTION;
@@ -161,14 +161,14 @@ BEGIN
     FOR UPDATE;
 
     -- Cerrar circuito.
-    IF v_fecha_votacion = CURDATE() AND v_hora_fin_votacion <= CURTIME() THEN
+    IF v_fecha_votacion = CURDATE() AND v_hora_fin_votacion <= CONVERT_TZ(NOW(), '+00:00', '-03:00') THEN
 		UPDATE CIRCUITO c
 		SET c.Esta_Cerrado = TRUE
 		WHERE c.Codigo = in_codigo_circuito;
 	ELSE
 		ROLLBACK;
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'No se puede cerrar el circuito antes de la hora de cierre oficial.';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "No se puede cerrar el circuito antes de la hora de cierre oficial.";
 	END IF;
     
     COMMIT;
@@ -176,8 +176,10 @@ END $$
 DELIMITER ;
 -- --------------------------------------------------------------------------------------------------------------------------
 DELIMITER $$
-CREATE PROCEDURE registrar_constancia_de_voto ( -- check +
+
+CREATE PROCEDURE registrar_constancia_de_voto ( 
 	IN in_codigo_circuito MEDIUMINT UNSIGNED,
+    IN in_hora_votacion TIME,
     IN in_votante_cedula INT UNSIGNED,
 	IN in_codigo_tipo_observacion TINYINT UNSIGNED,
 	IN in_comentarios_observacion TEXT(200)
@@ -185,41 +187,77 @@ CREATE PROCEDURE registrar_constancia_de_voto ( -- check +
 BEGIN
 	DECLARE v_ultimo_numero_ordinal SMALLINT UNSIGNED;
     DECLARE v_nuevo_numero_ordinal SMALLINT UNSIGNED;
+    DECLARE v_esta_cerrado BOOLEAN;
+    DECLARE v_codigo_eleccion SMALLINT UNSIGNED;
+    DECLARE v_existe_constancia BOOLEAN;
 
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
 		ROLLBACK;
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al registrar la constancia de voto';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al registrar la constancia de voto";
 	END;
-    
-    START TRANSACTION;
-    
-    -- Obtener número ordinal de votante.
-    SELECT COALESCE(MAX(cv.Numero_Ordinal_Votante), 0) INTO v_ultimo_numero_ordinal
-	FROM CONSTANCIA_DE_VOTO cv
-	WHERE cv.Codigo_Circuito = in_codigo_circuito
-	FOR UPDATE;
 
-	SET v_nuevo_numero_ordinal = v_ultimo_numero_ordinal + 1;
-	
-    -- Registrar constancia de voto.
-	INSERT INTO CONSTANCIA_DE_VOTO(
-	 Numero_Ordinal_Votante,
-	 Hora_Votacion,
-	 Cedula_Identidad_Votante,
-	 Codigo_Tipo_Observacion,
-	 Comentarios_Observacion,
-	 Codigo_Circuito)
-	VALUES
-		(v_nuevo_numero_ordinal,
-		CURTIME(),
-		in_votante_cedula,
-		in_codigo_tipo_observacion,
-		in_comentarios_observacion,
-		in_codigo_circuito);
+    START TRANSACTION;
+
+    -- 1. Validar si el circuito está abierto y obtener elección
+    SELECT Esta_Cerrado, Codigo_Eleccion
+    INTO v_esta_cerrado, v_codigo_eleccion
+    FROM CIRCUITO
+    WHERE Codigo = in_codigo_circuito
+    FOR UPDATE;
+
+    IF v_esta_cerrado = TRUE THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE "45000"
+        SET MESSAGE_TEXT = "No se puede registrar constancia: el circuito no está abierto";
+    END IF;
+
+    -- 2. Validar si el votante ya tiene constancia en esta elección
+    SELECT EXISTS (
+        SELECT 1
+        FROM CONSTANCIA_DE_VOTO cv
+        INNER JOIN CIRCUITO c ON c.Codigo = cv.Codigo_Circuito
+        WHERE c.Codigo_Eleccion = v_codigo_eleccion
+          AND cv.Cedula_Identidad_Votante = in_votante_cedula
+    ) INTO v_existe_constancia;
+
+    IF v_existe_constancia THEN
+        ROLLBACK;
+        SIGNAL SQLSTATE "45000"
+        SET MESSAGE_TEXT = "El votante ya registró una constancia en esta elección";
+    END IF;
+
+    -- 3. Obtener número ordinal
+    SELECT COALESCE(MAX(cv.Numero_Ordinal_Votante), 0)
+    INTO v_ultimo_numero_ordinal
+    FROM CONSTANCIA_DE_VOTO cv
+    WHERE cv.Codigo_Circuito = in_codigo_circuito
+    FOR UPDATE;
+
+    SET v_nuevo_numero_ordinal = v_ultimo_numero_ordinal + 1;
+
+    -- 4. Registrar constancia de voto
+    INSERT INTO CONSTANCIA_DE_VOTO (
+        Numero_Ordinal_Votante,
+        Hora_Votacion,
+        Cedula_Identidad_Votante,
+        Codigo_Tipo_Observacion,
+        Comentarios_Observacion,
+        Codigo_Circuito
+    )
+    VALUES (
+        v_nuevo_numero_ordinal,
+        in_hora_votacion,
+        in_votante_cedula,
+        in_codigo_tipo_observacion,
+        in_comentarios_observacion,
+        in_codigo_circuito
+    );
+
     COMMIT;
 END $$
+
 DELIMITER ;
 -- --------------------------------------------------------------------------------------------------------------------------
 DELIMITER $$
@@ -229,8 +267,8 @@ CREATE PROCEDURE obtener_elector_por_cedula ( -- check +
 BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al retornar elector';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al retornar elector";
 	END;
 
 	SELECT 
@@ -255,8 +293,8 @@ CREATE PROCEDURE obtener_elector_por_credencial ( -- check +
 BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al retornar elector';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al retornar elector";
 	END;
 
 	SELECT 
@@ -270,42 +308,5 @@ BEGIN
 	INNER JOIN ELECTOR e ON e.Cedula_Identidad = p.Cedula_Identidad
 	WHERE p.Serie_Credencial_Civica = in_serie_cc AND p.Numero_Credencial_Civica = in_numero_cc
     FOR UPDATE;
-END $$
-DELIMITER ;
--- --------------------------------------------------------------------------------------------------------------------------
-DELIMITER $$
-CREATE PROCEDURE verificar_que_elector_no_voto ( -- check +
-    IN in_elector_cedula INT UNSIGNED,
-    IN in_codigo_circuito MEDIUMINT UNSIGNED
-)
-BEGIN
-	DECLARE v_codigo_eleccion TINYINT UNSIGNED;
-
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-    BEGIN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Error al retornar verificación';
-    END;
-
-    -- Obtener la elección del circuito
-    SELECT c.Codigo_Eleccion
-    INTO v_codigo_eleccion
-    FROM CIRCUITO c
-    WHERE c.Codigo = in_codigo_circuito
-    FOR UPDATE;
-
-    -- Verificar si el elector NO votó en ningún circuito de esa elección
-    IF NOT EXISTS (
-        SELECT 1
-        FROM CONSTANCIA_DE_VOTO cv
-        INNER JOIN CIRCUITO c ON c.Codigo = cv.Codigo_Circuito
-        WHERE c.Codigo_Eleccion = v_codigo_eleccion
-          AND cv.Cedula_Identidad_Votante = in_elector_cedula
-        FOR UPDATE
-    ) THEN
-        SELECT 1 AS No_Voto; -- TRUE: no votó
-    ELSE
-        SELECT 0 AS No_Voto; -- FALSE: sí votó
-    END IF;
 END $$
 DELIMITER ;

@@ -11,10 +11,10 @@ CREATE PROCEDURE obtener_tipos_de_observacion () -- check +
 BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al retornar tipos de observación';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al retornar tipos de observación";
 	END;
-    SELECT *
+    SELECT Codigo, Nombre
 	FROM TIPO_DE_OBSERVACION
     FOR UPDATE;
 END $$
@@ -25,10 +25,10 @@ CREATE PROCEDURE obtener_tipos_de_voto () -- check +
 BEGIN
 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
 	BEGIN
-		SIGNAL SQLSTATE '45000'
-		SET MESSAGE_TEXT = 'Error al retornar tipos de voto';
+		SIGNAL SQLSTATE "45000"
+		SET MESSAGE_TEXT = "Error al retornar tipos de voto";
 	END;
-    SELECT *
+    SELECT Codigo, Nombre
 	FROM TIPO_DE_VOTO
     FOR UPDATE;
 END $$

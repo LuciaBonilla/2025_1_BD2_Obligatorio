@@ -1,5 +1,6 @@
 # Requerimientos/dependencias.
 flask
+flask-cors
 pymysql
 cryptography
 PyJWT

@@ -17,7 +17,7 @@ class Database:
                     password=os.environ["MYSQL_PASSWORD"],
                     database=os.environ["MYSQL_DATABASE"],
                     cursorclass=pymysql.cursors.DictCursor,
-                    autocommit=True,
+                    autocommit=True, # Hacer commit en las transacciones.
                 )
             except pymysql.MySQLError as e:
                 raise RuntimeError(f"Falló la conexión con la base de datos: {e}")

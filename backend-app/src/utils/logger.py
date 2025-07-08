@@ -2,6 +2,7 @@ import logging
 import sys
 import os
 
+# Sólo para debug.
 logger = logging.getLogger("flask_app")
 log_level = os.environ.get("LOG_LEVEL", "DEBUG").upper()
 logger.setLevel(getattr(logging, log_level, logging.DEBUG))

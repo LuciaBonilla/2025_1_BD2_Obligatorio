@@ -2,16 +2,12 @@ import datetime
 from zoneinfo import ZoneInfo
 
 from Database import Database
-
+#
 class TokenAcceso:
-    """
-        Estado: terminado
-    """
-    
     @staticmethod
-    def save(jti : str, ci : int) -> bool:
+    def save(jti : str, cedula_receptor : int) -> bool:
         # Datos para el insert.
-        created_by = ci
+        created_by = cedula_receptor
         created_at = datetime.datetime.now(ZoneInfo("America/Montevideo"))
         expires_at = created_at + datetime.timedelta(minutes=10)
         

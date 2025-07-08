@@ -4,6 +4,7 @@ from controllers.CircuitoController import circuito_bp
 from controllers.ResultadosVotacionController import results_bp
 from controllers.ConstanciaDeVotoController import constancia_bp
 from controllers.VotoController import vote_bp
+from controllers.TiposController import types_bp
 
 @staticmethod
 def register_controllers(app):
@@ -13,4 +14,5 @@ def register_controllers(app):
     app.register_blueprint(results_bp, url_prefix="/api/resultados")
     app.register_blueprint(constancia_bp, url_prefix="/api/constancia")
     app.register_blueprint(vote_bp, url_prefix="/api/voto")
+    app.register_blueprint(types_bp, url_prefix="/api/tipos")
     

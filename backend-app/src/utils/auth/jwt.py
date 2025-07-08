@@ -18,7 +18,7 @@ JWT_ALGORITHM = os.environ["JWT_ALGORITHM"]
 # cedula_receptor: miembro de la comisión receptora de voto es quién creó el token.
 
 @staticmethod
-def generate_access_token(cedula_receptor: int, expires_minutes: int = 10) -> dict:
+def generate_access_token(cedula_receptor: int, expires_minutes: int = 30) -> dict:
     """
         Genera un token de acceso.
     """

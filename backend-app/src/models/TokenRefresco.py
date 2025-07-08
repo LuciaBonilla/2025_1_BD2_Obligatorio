@@ -13,14 +13,14 @@ class TokenRefresco:
         
         conn = Database.get_database_connection()
         with conn.cursor() as cursor:
-            cursor.callproc("registrar_token_refresco", (jti, created_by, created_at, expires_at))
+            cursor.callproc("registrar_token_de_refresco", (jti, created_by, created_at, expires_at))
         return True
 
     @staticmethod
     def revoke(jti : str) -> bool:
         conn = Database.get_database_connection()
         with conn.cursor() as cursor:
-            cursor.callproc("revocar_token_refresco", (jti,))
+            cursor.callproc("revocar_token_de_refresco", (jti,))
         return True
     
     @staticmethod

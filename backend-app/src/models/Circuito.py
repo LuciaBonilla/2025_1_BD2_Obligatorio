@@ -45,7 +45,7 @@ class Circuito:
             cursor.callproc("obtener_circuito", (codigo_circuito,))
             result = cursor.fetchone()
             
-        if result:
+        if result: # Cuidado, porque retorna en formato timedelta y no en string la hora.
             result = format_circuito_result(result)
 
         return result

@@ -9,18 +9,18 @@ class TokenVoto:
         # Datos para el insert.
         created_by = cedula_receptor
         created_at = datetime.datetime.now(ZoneInfo("America/Montevideo"))
-        expires_at = created_at + datetime.timedelta(minutes=10)
+        expires_at = created_at + datetime.timedelta(minutes=30)
         
         conn = Database.get_database_connection()
         with conn.cursor() as cursor:
-            cursor.callproc("registrar_token_voto", (jti, created_by, created_at, expires_at))
+            cursor.callproc("registrar_token_de_voto", (jti, created_by, created_at, expires_at))
         return True
     
     @staticmethod
     def revoke(jti : str) -> bool:
         conn = Database.get_database_connection()
         with conn.cursor() as cursor:
-            cursor.callproc("revocar_token_voto", (jti,))
+            cursor.callproc("revocar_token_de_voto", (jti,))
         return True
     
     @staticmethod
@@ -28,6 +28,6 @@ class TokenVoto:
         result = None
         conn = Database.get_database_connection()
         with conn.cursor() as cursor:
-            cursor.callproc("obtener_token_voto_por_jti", (jti,))
+            cursor.callproc("obtener_token_de_voto_por_jti", (jti,))
             result = cursor.fetchone()
         return result

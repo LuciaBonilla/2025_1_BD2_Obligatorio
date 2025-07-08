@@ -4,15 +4,16 @@ class ResultadosVotacion:
     @staticmethod
     def get_resultados_votacion():
         """
-            Retorna los resultados de la votación actual a nivel país.
+            Retorna los resultados de la última votación a nivel país. --
         """
+        resultados = None
         conn = Database.get_database_connection()
         with conn.cursor() as cursor:
             # Obtener el código de la elección de la última elección transcurrida.
             cursor.callproc("obtener_codigo_de_eleccion_utlima")
             eleccion = cursor.fetchone()
             if not eleccion:
-                return {"error": "No hay elección configurada para hoy."}
+                return {"error": "No hay elección."}
 
             codigo_eleccion = eleccion["Codigo_Eleccion"]
             resultados = {}

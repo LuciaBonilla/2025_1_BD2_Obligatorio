@@ -13,50 +13,79 @@ from utils.auth.jwt import refresh_token_required, access_token_required
 
 auth_bp = Blueprint("auth", __name__)
 @auth_bp.route("/receptor/login", methods=["POST"])
-def login():
-    body = request.get_json()
-    ci = body.get("Cedula")
-    password = body.get("Password")
+def login_receptor():
+    """
+        Ej. ENTRADA OK
+        {
+            "Cedula": 347246327,
+            "Password": "Contrasenia123"
+        }
+        Ej. SALIDA OK
+        {
+            "Access_Token" : "EXAMPLE",
+            "Refresh_Token" : "EXAMPLE",
+            "Codigo_Circuito" : 123
+        }
+    """
+    try:
+        body = request.get_json()
+        ci = body.get("Cedula")
+        password = body.get("Password")
+        
+        if not ci or not password:
+            return jsonify({"error": "Cédula y contraseña requeridas"}), 400
+
+        hashed = Receptor.get_hashed_password_by_cedula(ci)
+        if not hashed:
+            return jsonify({"error": "User no encontrado"}), 404
+
+        if not hash_utils.verify_password(password, hashed):
+            return jsonify({"error": f"Contraseña incorrecta {password}, {hashed}"}), 401
+
+        access_data = jwt_utils.generate_access_token(cedula_receptor=ci, expires_minutes=30)
+        refresh_data = jwt_utils.generate_refresh_token(cedula_receptor=ci, expires_days=1)
     
-    if not ci or not password:
-        return jsonify({"error": "Cédula y contraseña requeridas"}), 400
+        TokenAcceso.save(jti=access_data["jti"], cedula_receptor=ci)
+        TokenRefresco.save(jti=refresh_data["jti"], cedula_receptor=ci)
+        
+        circuito_code = Circuito.get_codigo_circuito_by_cedula_receptor(ci)
 
-    hashed = Receptor.get_hashed_password_by_cedula(ci)
-    if not hashed:
-        return jsonify({"error": "User no encontrado"}), 404
-
-    if not hash_utils.verify_password(password, hashed):
-        return jsonify({"error": f"Contraseña incorrecta {password}, {hashed}"}), 401
-
-    access_data = jwt_utils.generate_access_token(cedula_receptor=ci, expires_minutes=10)
-    refresh_data = jwt_utils.generate_refresh_token(cedula_receptor=ci, expires_days=1)
-    
-    TokenAcceso.save(jti=access_data["jti"], cedula_receptor=ci)
-    TokenRefresco.save(jti=refresh_data["jti"], cedula_receptor=ci)
-    
-    circuito_code = Circuito.get_codigo_circuito_by_cedula_receptor(ci)
-
-    return jsonify({
-        "Access_Token": access_data["token"],
-        "Refresh_Token": refresh_data["token"],
-        "Codigo_Circuito": circuito_code
-    }), 200
+        return jsonify({
+            "Access_Token": access_data["token"],
+            "Refresh_Token": refresh_data["token"],
+            "Codigo_Circuito": circuito_code
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
 @auth_bp.route("/receptor/refresh-auth", methods=["POST"])
 @refresh_token_required
 def refresh_access_token():
-    data = request.get_json()
-    refresh_token = data.get("Refresh_Token")
+    """
+        Ej. ENTRADA OK
+        {
+            "Refresh_Token" : "EXAMPLE"
+        }
+        Ej. SALIDA OK
+        {
+            "Access_Token" : "EXAMPLE"
+        }
+    """
+    try:
+        data = request.get_json()
+        refresh_token = data.get("Refresh_Token")
 
-    refresh_data = jwt_utils.decode_token(refresh_token)
-    ci = refresh_data["sub"]
-    access_data = jwt_utils.generate_access_token(cedula_receptor=int(ci), expires_minutes=10)
+        refresh_data = jwt_utils.decode_token(refresh_token)
+        ci = refresh_data["sub"]
+        access_data = jwt_utils.generate_access_token(cedula_receptor=int(ci), expires_minutes=30)
     
-    TokenAcceso.save(jti=access_data["jti"], cedula_receptor=ci)
-    
-    return jsonify({
-        "Access_Token": access_data["token"]
-    }), 200
+        TokenAcceso.save(jti=access_data["jti"], cedula_receptor=ci)
+        
+        return jsonify({
+            "Access_Token": access_data["token"]
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @auth_bp.route("/receptor/check-access-token", methods=["GET"])
 @access_token_required
@@ -65,27 +94,42 @@ def check_access_token():
 
 @auth_bp.route("/enable-vote", methods=["POST"])
 def get_vote_token():
-    body = request.get_json()
-    ci = body.get("Cedula")
-    password = body.get("Password")
+    """
+        Ej. ENTRADA OK
+        {
+            "Cedula": 347246327,
+            "Password": "Contrasenia123"
+        }
+        Ej. SALIDA OK
+        {
+            "Vote_Token" : "EXAMPLE",
+            "Codigo_Circuito" : 123
+        }
+    """
+    try:
+        body = request.get_json()
+        ci = body.get("Cedula")
+        password = body.get("Password")
 
-    if not ci or not password:
-        return jsonify({"error": "Cédula y contraseña requeridas"}), 400
+        if not ci or not password:
+            return jsonify({"error": "Cédula y contraseña requeridas"}), 400
 
-    hashed = Receptor.get_hashed_password_by_cedula(ci)
-    if not hashed:
-        return jsonify({"error": "User no encontrado"}), 404
+        hashed = Receptor.get_hashed_password_by_cedula(ci)
+        if not hashed:
+            return jsonify({"error": "User no encontrado"}), 404
 
-    if not hash_utils.verify_password(password, hashed):
-        return jsonify({"error": f"Contraseña incorrecta {password}, {hashed}"}), 401
+        if not hash_utils.verify_password(password, hashed):
+            return jsonify({"error": f"Contraseña incorrecta {password}, {hashed}"}), 401
 
-    vote_data = jwt_utils.generate_access_token(cedula_receptor=ci, expires_minutes=10)
-    
-    TokenVoto.save(jti=vote_data["jti"], cedula_receptor=ci)
-    
-    circuito_code = Circuito.get_codigo_circuito_by_cedula_receptor(ci)
+        vote_data = jwt_utils.generate_access_token(cedula_receptor=ci, expires_minutes=30)
+        
+        TokenVoto.save(jti=vote_data["jti"], cedula_receptor=ci)
+        
+        circuito_code = Circuito.get_codigo_circuito_by_cedula_receptor(ci)
 
-    return jsonify({
-        "Vote_Token": vote_data["token"],
-        "Codigo_Circuito": circuito_code
-    }), 200
+        return jsonify({
+            "Vote_Token": vote_data["token"],
+            "Codigo_Circuito": circuito_code
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

@@ -48,12 +48,17 @@ Utilizar dos navegadores web (ej. Google por un lado y Microsoft Edge por el otr
 ### Como Receptor de Votos
 
 [x] Iniciar sesión para realizar mis funciones.
+
 [x] Abrir y cerrar el circuito que me tocó.
+
 [x] Buscar electores dada su cédula o credencial.
+
 [x] Registrar constancias de voto normal u observadas como receptor.
 
 ### Como Elector
 
 [x] Votar de forma secreta (si no se tienen en cuenta las fechas de creación de los registros ;) ).
+
 [x] Votar anulado, en blanco o a una hoja.
+
 [x] Votar una única vez.

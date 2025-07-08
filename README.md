@@ -4,6 +4,10 @@ Grupo 5: Bonilla, Araujo, Cabrera
 
 Veanse los documentos relacionados [aquí](./docs/)
 
+## Nota
+
+La contraseña de todos los receptores de votos es `contrasenia123`
+
 ## Pasos Previos
 
 Para cargar los [datos](./data/datos_bd_uruguay) en la base de datos, se debe cambiar en Visual Studio Code el ``End of Line Sequence`` de cada archivo .csv a ``LF`` (esto quiere decir que las líneas del CSV terminan en ``\n``). Luego se pueden encender los contenedores.

@@ -32,6 +32,7 @@ services:
       - backend-app
     volumes:
       - ./frontend-app:/frontend-app
+      - node_modules:/frontend-app/node_modules
 
   # Dockerización para la app de backend.
   backend-app:
@@ -57,3 +58,4 @@ services:
 
 volumes:
   db_data:
+  node_modules:
